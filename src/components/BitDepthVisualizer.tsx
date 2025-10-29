@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Upload, Download, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface ImageData {
+interface LoadedImage {
   original: HTMLImageElement;
   processed: HTMLImageElement;
   originalBitDepth: number;
 }
 
 export const BitDepthVisualizer = () => {
-  const [imageData, setImageData] = useState<ImageData | null>(null);
+  const [imageData, setImageData] = useState<LoadedImage | null>(null);
   const [bitDepth, setBitDepth] = useState([8]);
   const [histogram, setHistogram] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -21,7 +21,7 @@ export const BitDepthVisualizer = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const calculateHistogram = useCallback((imageData: ImageData, currentBitDepth: number[]) => {
+  const calculateHistogram = useCallback((imgData: LoadedImage, currentBitDepth: number[]) => {
     if (!canvasRef.current) return;
     
     const canvas = canvasRef.current;
@@ -33,10 +33,10 @@ export const BitDepthVisualizer = () => {
       const oCanvas = originalCanvasRef.current;
       const oCtx = oCanvas.getContext('2d');
       if (oCtx) {
-        oCanvas.width = imageData.original.width;
-        oCanvas.height = imageData.original.height;
+        oCanvas.width = imgData.original.width;
+        oCanvas.height = imgData.original.height;
         oCtx.clearRect(0, 0, oCanvas.width, oCanvas.height);
-        oCtx.drawImage(imageData.original, 0, 0);
+        oCtx.drawImage(imgData.original, 0, 0);
         // Set CSS size for responsive display
         oCanvas.style.width = '100%';
         oCanvas.style.height = 'auto';
@@ -44,12 +44,12 @@ export const BitDepthVisualizer = () => {
     }
 
     // Prepare processed canvas (right panel)
-    canvas.width = imageData.original.width;
-    canvas.height = imageData.original.height;
+    canvas.width = imgData.original.width;
+    canvas.height = imgData.original.height;
     
     // Clear and draw original image first
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(imageData.original, 0, 0);
+    ctx.drawImage(imgData.original, 0, 0);
     
     // Set CSS size for responsive display
     canvas.style.width = '100%';
