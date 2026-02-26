@@ -171,7 +171,14 @@ export const BitDepthVisualizer = () => {
     }
     
     ctx.putImageData(data, 0, 0);
-    
+
+    // Compute histogram from quantized pixels BEFORE edge overlay is blended in
+    const hist = new Array(256).fill(0);
+    for (let i = 0; i < pixels.length; i += 4) {
+      const luminosity = Math.floor(0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2]);
+      hist[luminosity]++;
+    }
+
     if (showEdges && reducing) {
       // Sobel per-channel on original and processed, then max-combine and subtract
       const sobel = (arr: Float32Array) => {
@@ -282,28 +289,25 @@ export const BitDepthVisualizer = () => {
 
       ctx.putImageData(data, 0, 0);
     }
-    
-    // Calculate histogram
-    const hist = new Array(256).fill(0);
-    for (let i = 0; i < pixels.length; i += 4) {
-      const r = pixels[i];
-      const g = pixels[i + 1];
-      const b = pixels[i + 2];
-      const luminosity = Math.floor(0.299 * r + 0.587 * g + 0.114 * b);
-      hist[luminosity]++;
-    }
-    
+
     setHistogram(hist);
   }, [showEdges]);
 
   const processImage = useCallback(async (file: File) => {
     const detectedDepth = await detectBitDepth(file);
 
+    const blobUrl = URL.createObjectURL(file);
     const imagePromise = new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(blobUrl);
+        resolve(img);
+      };
+      img.onerror = (err) => {
+        URL.revokeObjectURL(blobUrl);
+        reject(err);
+      };
+      img.src = blobUrl;
     });
 
     try {
