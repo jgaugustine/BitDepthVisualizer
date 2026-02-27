@@ -401,9 +401,19 @@ export const BitDepthVisualizer = () => {
   }, [imageData, bitDepth, calculateHistogram]);
 
   return (
-    <div className="min-h-screen bg-technical-bg p-6">
+    <div className="min-h-screen bg-technical-bg flex flex-col">
+      <header className="shrink-0 border-b bg-background px-4 py-2">
+        <div className="flex items-center gap-2">
+          <a
+            href="/"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Back to Capstone
+          </a>
+        </div>
+      </header>
+      <div className="flex-1 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Bit Depth Visualizer
@@ -569,6 +579,7 @@ export const BitDepthVisualizer = () => {
             )}
           </>
         )}
+      </div>
       </div>
     </div>
   );
